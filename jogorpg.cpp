@@ -62,8 +62,10 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
 
     while (vilao.vidaVilao > 0) {
         // Exibindo as informacoes de vida do vilao
-        cout << "\nVida do " << vilao.nomeVilao << ": " << vilao.vidaVilao << "\n";
-        
+        cout << "\n============================================\n";
+        cout << "\n      Vida do " << vilao.nomeVilao << ": " << vilao.vidaVilao << endl;
+        cout << "\n============================================\n";
+
         // Escolher personagem para o turno
         cout << "\nEscolha o personagem para atacar: \n";
         for (int i = 0; i < numeroDePersonagens; i++) {
@@ -73,7 +75,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
         }
         cout << "\nEscolha seu personagem: ";
         cin >> escolhaPersonagem;
-
+        
         // Validacao da escolha
         if (escolhaPersonagem < 1 || escolhaPersonagem > numeroDePersonagens || personagens[escolhaPersonagem - 1].vida <= 0) {
             cout << "\nOpcao invalida ou personagem derrotado. Tente novamente.\n";
@@ -143,10 +145,15 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
         // Verifica se o vilao foi derrotado
         if (vilao.vidaVilao <= 0) {
             if (vilao.vidaVilao <=0 && vilao.nomeVilao == "O Caos") {
-                cout << "\nPARABENS!! VOCE GANHOU O JOGO";
+                cout << "\n" << vilao.nomeVilao << " FOI DERROTADO!\n";
+                cout << "\n*************************************************";
+                cout << "\n********* PARABENS!! VOCE GANHOU O JOGO *********\n";
+                cout << "*************************************************\n";
+                jogoFinalizado = true;
+                break;
             }
-            cout << vilao.nomeVilao << " foi derrotado!\n";
 
+            cout << "\n" << vilao.nomeVilao << " FOI DERROTADO!\n";
             // Introdução após a morte do vilão
             cout << "\nApós a morte de " << vilao.nomeVilao << ", os herois seguem seu destino rumo a novos desafios.\n";
             if (vilao.nomeVilao == "Guardiao das Sombras") {
@@ -162,7 +169,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
 
         // Verifica se todos os personagens foram derrotados
         if (todosPersonagensDerrotados(personagens)) {
-            cout << "\nGAME OVER!! Todos seus personagens foram derrotados!\n" << endl;
+            cout << "\n======== GAME OVER!! Todos seus personagens foram derrotados! ========\n" << endl;
             jogoFinalizado = true;
             break;
         }
@@ -200,7 +207,12 @@ void comecarJogo(vector<Personagem>& personagens, vector<Cenario>& cenarios, vec
 
 int main() {
     // Contexto inicial
+
+    cout << "================================================================================================================================================================================================================\n";
+    cout << "\n";
     cout << "Cinco reinos magicos vivem em harmonia, protegidos pelos guardioes. Mas uma ameaca, o mal conhecido como 'O Caos', despertou e seus seguidores espalham a escuridao pelos reinos. O 'Guardiao das Sombras' tomou a Floresta das Sombras, e o 'Lider dos Trolls' invadiu as Montanhas dos Ventos Gelados. Para restaurar a paz, os guardioes devem derrotar esses vilaos e, por fim, enfrentar 'O Caos', ou o equilibrio dos reinos sera perdido para sempre.\n";
+    cout << "\n";
+    cout << "================================================================================================================================================================================================================\n";
 
     // Criação dos personagens
     vector<Personagem> personagens = {
@@ -230,10 +242,14 @@ int main() {
 
     // Menu inicial
     do {
-        cout << "\n===== AVENTURA DOS 5 REINOS =====\n";
-        cout << "1. Iniciar jogo\n";
-        cout << "2. Salvar o progresso\n";
-        cout << "3. Sair\n";
+        cout << "\n=====================================\n";
+        cout << "|        AVENTURA DOS 5 REINOS       |\n";
+        cout << "=====================================\n";
+        cout << "|        Escolha uma opcao:          |\n";
+        cout << "|        1. Iniciar Jogo             |\n";
+        cout << "|        2. Salvar Progresso         |\n";
+        cout << "|        3. Sair                     |\n";
+        cout << "=====================================\n";
         cout << "Digite a opcao: ";
         cin >> escolha;
 
@@ -252,7 +268,7 @@ int main() {
             break;
 
         default:
-            cout << "Opcao invalida! Tente novamente.\n";
+            cout << "\nOPCAO INVALIDA!! DIGITE A OPCAO CORRETA.\n";
             break;
         }
 
