@@ -7,6 +7,8 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -46,6 +48,18 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
     int numeroDePersonagens = 5;
     int escolhaPersonagem;
 
+    //Introdução do vilão antes da batalha começar
+    cout << "\n" << vilao.nomeVilao << "diz: ";
+    if (vilao.nomeVilao == "Guardiao das Sombras") {
+        cout << "\"Eu fui traido, e agora voces pagarao com suas vidas!\"";
+    } else if (vilao.nomeVilao == "Lider dos Trolls") {
+        cout << "\"Os reinos serao meus! Ninguem pode me deter!\"";
+    }
+    else if (vilao.nomeVilao == "O Caos"){
+        cout << "\"Eu trarei a verdadeira liberdade! O fim de toda ordem esta proximo!\"";
+    }
+    cout << endl;
+
     while (vilao.vidaVilao > 0) {
         // Exibindo as informacoes de vida do vilao
         cout << "\n============================================\n";
@@ -81,6 +95,47 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
             cout << vilao.nomeVilao << " contra-ataca, causando " << vilao.forcaVilao << " de dano!\n";
             personagemEscolhido.vida -= vilao.forcaVilao;
 
+            // Frase entre ataques dos vilões
+            cout << "\n" << vilao.nomeVilao << " diz: ";
+            if (vilao.nomeVilao == "Guardiao das Sombras") {
+                cout << (rand() % 2 == 0 ? "\"Voces vao se perder para sempre, assim como todos os que me desafiaram!\"\n" :
+                                           "\"Sombras eternas irao devorar todos voces!\"\n");
+            } else if (vilao.nomeVilao == "Lider dos Trolls") {
+                cout << (rand() % 2 == 0 ? "\"Esse ataque foi patetico! Eu sou indestrutivel!\"\n" :
+                                           "\"Eu pisotearei todos que se atreverem a me enfrentar!\"\n");
+            } else if (vilao.nomeVilao == "O Caos") {
+                cout << (rand() % 2 == 0 ? "\"Nada pode conter o Caos! Em breve, tudo sera reduzido ao nada!\"\n" :
+                                           "\"A ordem sera destruída, e o caos reinara para sempre!\"\n");
+            }
+            cout << endl;
+
+            // Dentro da função batalhar, logo após o vilão atacar o personagem escolhido
+            if (personagemEscolhido.vida > 0) {
+                cout << personagemEscolhido.nome << " diz: ";
+                
+                if (personagemEscolhido.nome == "Thorin") {
+                    cout << (rand() % 3 == 0 ? "\"Isso e tudo que você tem? Eu sou mais forte do que isso!\"\n" :
+                                               (rand() % 2 == 0 ? "\"Vai ser preciso mais do que isso para me derrubar!\"\n" :
+                                                                  "\"Eu ja lutei contra piores do que você!\"\n"));
+                } else if (personagemEscolhido.nome == "Eldra") {
+                    cout << (rand() % 3 == 0 ? "\"Voce ousa desafiar o poder da magia?\"\n" :
+                                               (rand() % 2 == 0 ? "\"Minhas defesas ainda estao intactas. Prepare-se!\"\n" :
+                                                                  "\"Essa dor so fortalece minha determinacao!\"\n"));
+                } else if (personagemEscolhido.nome == "Kara") {
+                    cout << (rand() % 3 == 0 ? "\"Ah, voce vai pagar caro por esse ataque!\"\n" :
+                                               (rand() % 2 == 0 ? "\"Mal me acertou! Vai ter que ser mais rapido!\"\n" :
+                                                                  "\"Voce nao tem chance contra minhas habilidades!\"\n"));
+                } else if (personagemEscolhido.nome == "Finn") {
+                    cout << (rand() % 3 == 0 ? "\"Nao pense que vou perder o foco tao facil!\"\n" :
+                                               (rand() % 2 == 0 ? "\"Minha precisao continua impecavel!\"\n" :
+                                                                  "\"Seus ataques sao fortes, mas eu sou agil!\"\n"));
+                } else if (personagemEscolhido.nome == "Lara") {
+                    cout << (rand() % 3 == 0 ? "\"A luz ainda me guia... eu continuarei lutando!\"\n" :
+                                               (rand() % 2 == 0 ? "\"A forca dos reinos flui dentro de mim!\"\n" :
+                                                                  "\"A escuridao nunca triunfara sobre a luz!\"\n"));
+                }
+            }
+
             // Se o personagem morrer, ele nao pode mais atacar
             if (personagemEscolhido.vida <= 0) {
                 cout << personagemEscolhido.nome << " foi derrotado!\n";
@@ -97,7 +152,18 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
                 jogoFinalizado = true;
                 break;
             }
+
             cout << "\n" << vilao.nomeVilao << " FOI DERROTADO!\n";
+            // Introdução após a morte do vilão
+            cout << "\nApós a morte de " << vilao.nomeVilao << ", os herois seguem seu destino rumo a novos desafios.\n";
+            if (vilao.nomeVilao == "Guardiao das Sombras") {
+                cout << "Eles agora sabem que as sombras sao mais profundas e que o mal ainda persiste nas terras sombrias...\n";
+            } else if (vilao.nomeVilao == "Lider dos Trolls") {
+                cout << "Com a derrota do lider, os reinos se preparam para a paz, mas os trolls ainda vagam pelas florestas...\n";
+            } else if (vilao.nomeVilao == "O Caos") {
+                cout << "Embora o caos tenha sido derrotado, a ordem do mundo nunca mais sera a mesma...\n";
+            }
+
             break;
         }
 
@@ -121,6 +187,15 @@ void comecarJogo(vector<Personagem>& personagens, vector<Cenario>& cenarios, vec
         // Exibe o cenrio e seu vilao correspondente
         cout << "\nCenario: " << cenarios[i].nome << " - Descricao: " << cenarios[i].descricao << " - Dificuldade: " << cenarios[i].dificuldade << endl;
 
+        // Descrição da história e motivação do vilão
+        if (i == 0) {
+            cout << "\nUma presenca sombria... " << viloes[i].nomeVilao << " aparece! Ele, que um dia foi o protetor da Floresta das Sombras, agora busca vinganca, acreditando que a paz e uma ilusao.\n";
+        } else if (i == 1) {
+            cout << "\nO chao treme enquanto o " << viloes[i].nomeVilao << " se aproxima. Ambicioso e brutal, ele deseja tornar-se o senhor dos reinos, subjugando todas as criaturas sob seu poder.\n";
+        } else if (i == 2) {
+            cout << "\nUm silencio mortal toma conta do templo... " << viloes[i].nomeVilao << " emerge das trevas, determinado a destruir toda a ordem e lancar o mundo em caos eterno.\n";
+        }
+        
         // Inicia a batalha contra o vilao do cenario atual
         batalhar(viloes[i], personagens, jogoFinalizado);
 
