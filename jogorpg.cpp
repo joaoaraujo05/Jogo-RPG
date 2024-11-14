@@ -90,9 +90,12 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
         // Verifica se o vilao foi derrotado
         if (vilao.vidaVilao <= 0) {
             if (vilao.vidaVilao <=0 && vilao.nomeVilao == "O Caos") {
+                cout << "\n" << vilao.nomeVilao << " FOI DERROTADO!\n";
                 cout << "\n*************************************************";
                 cout << "\n********* PARABENS!! VOCE GANHOU O JOGO *********\n";
                 cout << "*************************************************\n";
+                jogoFinalizado = true;
+                break;
             }
             cout << "\n" << vilao.nomeVilao << " FOI DERROTADO!\n";
             break;
@@ -190,7 +193,7 @@ int main() {
             break;
 
         default:
-            cout << "\nOPCAO INVALIDA!! DIGITE A OPCAO CORRETA:\n";
+            cout << "\nOPCAO INVALIDA!! DIGITE A OPCAO CORRETA.\n";
             break;
         }
 
