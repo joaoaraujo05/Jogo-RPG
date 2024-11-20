@@ -47,16 +47,124 @@ void salvarJogo(const EstadoDoJogo &estadoDoJogo)
 {
     cout << "Salvando Progresso" << endl;
 
-    // TODO Welton: Implementar metodo que salva o jogo em JSON ou TXT
+    ofstream arquivo("estado_do_jogo.txt");
+    if (!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo para salvar o jogo!" << endl;
+        return;
+    }
 
-    cout << estadoDoJogo.cenarioAtual << endl;
-    cout << estadoDoJogo.jogoFinalizado << endl;
+    arquivo << "CenarioAtual: " << estadoDoJogo.cenarioAtual << endl;
+    arquivo << "JogoFinalizado: " << (estadoDoJogo.jogoFinalizado ? "true" : "false") << endl;
+
+    arquivo << "Personagens:" << endl;
+    for (const auto &personagem : estadoDoJogo.personagens) {
+        arquivo << personagem.nome << ","
+                << personagem.classe << ","
+                << personagem.vida << ","
+                << personagem.dano << endl;
+    }
+
+    arquivo << "Cenarios:" << endl;
+    for (const auto &cenario : estadoDoJogo.cenarios) {
+        arquivo << cenario.nome << ","
+                << cenario.descricao << ","
+                << cenario.dificuldade << endl;
+    }
+
+    arquivo << "Viloes:" << endl;
+    for (const auto &vilao : estadoDoJogo.viloes) {
+        arquivo << vilao.nomeVilao << ","
+                << vilao.vidaVilao << ","
+                << vilao.forcaVilao << endl;
+    }
+
+    arquivo.close();
+    cout << "Progresso salvo com sucesso." << endl;
 }
 
 // Função para carregar o estado do jogo
 bool carregarJogo(EstadoDoJogo &estadoDoJogo)
 {
-    // TODO Welton: Implementar metodo de carrega o jogo a partir do documento salvo
+    cout << "Carregando Progresso" << endl;
+
+    ifstream arquivo("estado_do_jogo.txt");
+    if (!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo para carregar o jogo!" << endl;
+        return false;
+    }
+
+    estadoDoJogo.personagens.clear();
+    estadoDoJogo.cenarios.clear();
+    estadoDoJogo.viloes.clear();
+
+    string linha;
+
+    // Lê CenarioAtual e JogoFinalizado
+    getline(arquivo, linha);
+    estadoDoJogo.cenarioAtual = stoi(linha.substr(linha.find(":") + 1));
+
+    getline(arquivo, linha);
+    estadoDoJogo.jogoFinalizado = (linha.substr(linha.find(":") + 1) == "true");
+
+    // Lê Personagens
+    getline(arquivo, linha); // "Personagens:"
+    while (getline(arquivo, linha) && !linha.empty() && linha != "Cenarios:") {
+        Personagem p;
+        size_t pos = 0;
+        pos = linha.find(",");
+        p.nome = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        p.classe = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        p.vida = stoi(linha.substr(0, pos));
+        linha = linha.substr(pos + 1);
+
+        p.dano = stoi(linha);
+
+        estadoDoJogo.personagens.push_back(p);
+    }
+
+    // Lê Cenarios
+    while (getline(arquivo, linha) && !linha.empty() && linha != "Viloes:") {
+        Cenario c;
+        size_t pos = 0;
+        pos = linha.find(",");
+        c.nome = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        c.descricao = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        c.dificuldade = linha;
+
+        estadoDoJogo.cenarios.push_back(c);
+    }
+
+    // Lê Viloes
+    while (getline(arquivo, linha) && !linha.empty()) {
+        Vilao v;
+        size_t pos = 0;
+        pos = linha.find(",");
+        v.nomeVilao = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        v.vidaVilao = stoi(linha.substr(0, pos));
+        linha = linha.substr(pos + 1);
+
+        v.forcaVilao = stoi(linha);
+
+        estadoDoJogo.viloes.push_back(v);
+    }
+
+    arquivo.close();
+    cout << "Jogo carregado com sucesso!" << endl;
+    return true;
 }
 
 // Funcao para verificar se todos os personagens foram derrotados
@@ -159,11 +267,11 @@ void comecarJogo(EstadoDoJogo &estadoDoJogo)
     for (int i = cenarioAtual; i < numeroDeCenarios; i++)
     {
         // Exibe o cenrio e seu vilao correspondente
-        cenarioAtual = i;
         cout << "\nCenario: " << cenarios[i].nome << " - Descricao: " << cenarios[i].descricao << " - Dificuldade: " << cenarios[i].dificuldade << endl;
 
         // Inicia a batalha contra o vilao do cenario atual
         batalhar(viloes[i], personagens, jogoFinalizado);
+        cenarioAtual = i + 1;
 
         // O jogo é salvo a cada batalha finalizada
         salvarJogo(estadoDoJogo);
