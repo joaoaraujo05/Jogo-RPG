@@ -32,11 +32,145 @@ struct Vilao {
     int forcaVilao;
 };
 
+struct EstadoDoJogo
+{
+    vector<Personagem> personagens;
+    vector<Cenario> cenarios;
+    vector<Vilao> viloes;
+    int cenarioAtual;
+    bool jogoFinalizado;
+};
+
+// Função para salvar o estado do jogo
+void salvarJogo(const EstadoDoJogo &estadoDoJogo)
+{
+    cout << "Salvando Progresso" << endl;
+
+    ofstream arquivo("estado_do_jogo.txt");
+    if (!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo para salvar o jogo!" << endl;
+        return;
+    }
+
+    arquivo << "CenarioAtual: " << estadoDoJogo.cenarioAtual << endl;
+    arquivo << "JogoFinalizado: " << (estadoDoJogo.jogoFinalizado ? "true" : "false") << endl;
+
+    arquivo << "Personagens:" << endl;
+    for (const auto &personagem : estadoDoJogo.personagens) {
+        arquivo << personagem.nome << ","
+                << personagem.classe << ","
+                << personagem.vida << ","
+                << personagem.dano << endl;
+    }
+
+    arquivo << "Cenarios:" << endl;
+    for (const auto &cenario : estadoDoJogo.cenarios) {
+        arquivo << cenario.nome << ","
+                << cenario.descricao << ","
+                << cenario.dificuldade << endl;
+    }
+
+    arquivo << "Viloes:" << endl;
+    for (const auto &vilao : estadoDoJogo.viloes) {
+        arquivo << vilao.nomeVilao << ","
+                << vilao.vidaVilao << ","
+                << vilao.forcaVilao << endl;
+    }
+
+    arquivo.close();
+    cout << "Progresso salvo com sucesso." << endl;
+}
+
+// Função para carregar o estado do jogo
+bool carregarJogo(EstadoDoJogo &estadoDoJogo)
+{
+    cout << "Carregando Progresso" << endl;
+
+    ifstream arquivo("estado_do_jogo.txt");
+    if (!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo para carregar o jogo!" << endl;
+        return false;
+    }
+
+    estadoDoJogo.personagens.clear();
+    estadoDoJogo.cenarios.clear();
+    estadoDoJogo.viloes.clear();
+
+    string linha;
+
+    // Lê CenarioAtual e JogoFinalizado
+    getline(arquivo, linha);
+    estadoDoJogo.cenarioAtual = stoi(linha.substr(linha.find(":") + 1));
+
+    getline(arquivo, linha);
+    estadoDoJogo.jogoFinalizado = (linha.substr(linha.find(":") + 1) == "true");
+
+    // Lê Personagens
+    getline(arquivo, linha); // "Personagens:"
+    while (getline(arquivo, linha) && !linha.empty() && linha != "Cenarios:") {
+        Personagem p;
+        size_t pos = 0;
+        pos = linha.find(",");
+        p.nome = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        p.classe = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        p.vida = stoi(linha.substr(0, pos));
+        linha = linha.substr(pos + 1);
+
+        p.dano = stoi(linha);
+
+        estadoDoJogo.personagens.push_back(p);
+    }
+
+    // Lê Cenarios
+    while (getline(arquivo, linha) && !linha.empty() && linha != "Viloes:") {
+        Cenario c;
+        size_t pos = 0;
+        pos = linha.find(",");
+        c.nome = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        c.descricao = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        c.dificuldade = linha;
+
+        estadoDoJogo.cenarios.push_back(c);
+    }
+
+    // Lê Viloes
+    while (getline(arquivo, linha) && !linha.empty()) {
+        Vilao v;
+        size_t pos = 0;
+        pos = linha.find(",");
+        v.nomeVilao = linha.substr(0, pos);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        v.vidaVilao = stoi(linha.substr(0, pos));
+        linha = linha.substr(pos + 1);
+
+        v.forcaVilao = stoi(linha);
+
+        estadoDoJogo.viloes.push_back(v);
+    }
+
+    arquivo.close();
+    cout << "Jogo carregado com sucesso!" << endl;
+    return true;
+}
+
 // Funcao para verificar se todos os personagens foram derrotados
 bool todosPersonagensDerrotados(const vector<Personagem>& personagens) {
     for (int i = 0; i < 5; i++) {
         if (personagens[i].vida > 0) {
-            return false; 
+            return false;
         }
     }
     return true;
@@ -65,7 +199,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
         cout << "\n============================================\n";
         cout << "\n      Vida do " << vilao.nomeVilao << ": " << vilao.vidaVilao << endl;
         cout << "\n============================================\n";
-
+        
         // Escolher personagem para o turno
         cout << "\nEscolha o personagem para atacar: \n";
         for (int i = 0; i < numeroDePersonagens; i++) {
@@ -75,7 +209,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
         }
         cout << "\nEscolha seu personagem: ";
         cin >> escolhaPersonagem;
-        
+
         // Validacao da escolha
         if (escolhaPersonagem < 1 || escolhaPersonagem > numeroDePersonagens || personagens[escolhaPersonagem - 1].vida <= 0) {
             cout << "\nOpcao invalida ou personagem derrotado. Tente novamente.\n";
@@ -112,7 +246,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
             // Dentro da função batalhar, logo após o vilão atacar o personagem escolhido
             if (personagemEscolhido.vida > 0) {
                 cout << personagemEscolhido.nome << " diz: ";
-                
+
                 if (personagemEscolhido.nome == "Thorin") {
                     cout << (rand() % 3 == 0 ? "\"Isso e tudo que você tem? Eu sou mais forte do que isso!\"\n" :
                                                (rand() % 2 == 0 ? "\"Vai ser preciso mais do que isso para me derrubar!\"\n" :
@@ -180,10 +314,16 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
 }
 
 // Funcao de inicio de jogo
-void comecarJogo(vector<Personagem>& personagens, vector<Cenario>& cenarios, vector<Vilao>& viloes, bool& jogoFinalizado) {
+void comecarJogo(EstadoDoJogo &estadoDoJogo) {
+    vector<Personagem> &personagens = estadoDoJogo.personagens;
+    vector<Cenario> &cenarios = estadoDoJogo.cenarios;
+    vector<Vilao> &viloes = estadoDoJogo.viloes;
+    int &cenarioAtual = estadoDoJogo.cenarioAtual;
+    bool &jogoFinalizado = estadoDoJogo.jogoFinalizado;
+
     int numeroDeCenarios = 3;
-    
-    for (int i = 0; i < numeroDeCenarios; i++) {
+
+    for (int i = cenarioAtual; i < numeroDeCenarios; i++) {
         // Exibe o cenrio e seu vilao correspondente
         cout << "\nCenario: " << cenarios[i].nome << " - Descricao: " << cenarios[i].descricao << " - Dificuldade: " << cenarios[i].dificuldade << endl;
 
@@ -195,9 +335,13 @@ void comecarJogo(vector<Personagem>& personagens, vector<Cenario>& cenarios, vec
         } else if (i == 2) {
             cout << "\nUm silencio mortal toma conta do templo... " << viloes[i].nomeVilao << " emerge das trevas, determinado a destruir toda a ordem e lancar o mundo em caos eterno.\n";
         }
-        
+
         // Inicia a batalha contra o vilao do cenario atual
         batalhar(viloes[i], personagens, jogoFinalizado);
+        cenarioAtual = i + 1;
+
+        // O jogo é salvo a cada batalha finalizada
+        salvarJogo(estadoDoJogo);
 
         if (jogoFinalizado) {
             break;
@@ -214,8 +358,10 @@ int main() {
     cout << "\n";
     cout << "================================================================================================================================================================================================================\n";
 
+    EstadoDoJogo estadoDoJogo;
+
     // Criação dos personagens
-    vector<Personagem> personagens = {
+    estadoDoJogo.personagens = {
     {"Thorin", "Guerreiro", 300, 25},  
     {"Eldra", "Maga", 250, 30},        
     {"Kara", "Ladina", 200, 35},       
@@ -224,21 +370,23 @@ int main() {
     };
 
     // Criação dos cenários
-    vector<Cenario> cenarios = {
+    estadoDoJogo.cenarios = {
         {"Floresta das Sombras", "Uma floresta antiga e enigmatica, lar de criaturas magicas.", "Dificuldade Baixa"},
         {"Montanhas dos Ventos Gelados", "Passagens traicoeiras e picos cobertos de neve.", "Dificuldade Media"},
         {"Templo do Caos", "Local de origem do antigo mal, escondido em ruinas antigas.", "Dificuldade Alta"}
     };
 
     // Criação dos vilões
-    vector<Vilao> viloes = {
+    estadoDoJogo.viloes = {
         {"Guardiao das Sombras", 200, 30},
         {"Lider dos Trolls", 300, 50},
         {"O Caos", 500, 70} // vilão final
     };
 
+    estadoDoJogo.cenarioAtual = 0;
+    estadoDoJogo.jogoFinalizado = false;
+
     int escolha;
-    bool jogoFinalizado = false;
 
     // Menu inicial
     do {
@@ -247,7 +395,7 @@ int main() {
         cout << "=====================================\n";
         cout << "|        Escolha uma opcao:          |\n";
         cout << "|        1. Iniciar Jogo             |\n";
-        cout << "|        2. Salvar Progresso         |\n";
+        cout << "|        2. Carregar Progresso       |\n";
         cout << "|        3. Sair                     |\n";
         cout << "=====================================\n";
         cout << "Digite a opcao: ";
@@ -256,11 +404,13 @@ int main() {
         switch (escolha)
         {
         case 1:
-            comecarJogo(personagens, cenarios, viloes, jogoFinalizado);
+            comecarJogo(estadoDoJogo);
             break;
-        
+
         case 2:
-            //salvarJogo();
+            if (carregarJogo(estadoDoJogo)) {
+                comecarJogo(estadoDoJogo);
+            }
             break;
 
         case 3:
@@ -272,7 +422,7 @@ int main() {
             break;
         }
 
-    } while (escolha != 3 && !jogoFinalizado);
+    } while (escolha != 3 && !estadoDoJogo.jogoFinalizado);
 
     return 0;
 }
