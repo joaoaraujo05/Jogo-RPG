@@ -9,6 +9,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -197,8 +198,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
     while (vilao.vidaVilao > 0) {
         // Exibindo as informacoes de vida do vilao
         cout << "\n============================================\n";
-        cout << "VILAO\t\t\tVIDA" << endl;
-        cout << vilao.nomeVilao << "\t" << vilao.vidaVilao << endl;
+        cout << "VILAO: " << vilao.nomeVilao << " VIDA: " << vilao.vidaVilao << endl;
         cout << "\n============================================\n";
         
         // Escolher personagem para o turno
