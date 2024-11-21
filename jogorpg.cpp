@@ -421,7 +421,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
 }
 
 // Funcao de inicio de jogo
-void comecarJogo(EstadoDoJogo &estadoDoJogo, Personagem &personagem) {
+void comecarJogo(EstadoDoJogo &estadoDoJogo) {
     vector<Personagem> &personagens = estadoDoJogo.personagens;
     vector<Cenario> &cenarios = estadoDoJogo.cenarios;
     vector<Vilao> &viloes = estadoDoJogo.viloes;
@@ -517,16 +517,12 @@ int main() {
         switch (escolha)
         {
         case 1:
-            for (Personagem &personagem : estadoDoJogo.personagens) {
-                comecarJogo(estadoDoJogo, personagem);  // Chama a função para cada personagem
-            }
+            comecarJogo(estadoDoJogo);
             break;
 
         case 2:
             if (carregarJogo(estadoDoJogo)) {
-                for (Personagem &personagem : estadoDoJogo.personagens) {
-                    comecarJogo(estadoDoJogo, personagem);  // Chama a função para cada personagem
-                }
+                comecarJogo(estadoDoJogo);  // Chama a função para cada personagem
             }
             break;
 
