@@ -188,10 +188,10 @@ void adicionarItensAoPersonagem(Personagem &personagem) {
     Item aljava = {"Aljava Infinita", "dano", 20};
 
     // Adicionando os itens ao inventário do personagem
-    if (personagem.nome == "Thorin") {
+    if (personagem.nome == "Athos") {
       personagem.inventario.push_back(machado);
       personagem.inventario.push_back(pocao);
-    } else if (personagem.nome == "Eldra") {
+    } else if (personagem.nome == "Trixy") {
         personagem.inventario.push_back(varinha);
         personagem.inventario.push_back(livro);
     } else if (personagem.nome == "Kara") {
@@ -204,9 +204,6 @@ void adicionarItensAoPersonagem(Personagem &personagem) {
         personagem.inventario.push_back(espada);
         personagem.inventario.push_back(capa);
     }
-
-     /*personagem.inventario.push_back(item1);
-    personagem.inventario.push_back(item2);*/
 
 }
 
@@ -297,19 +294,19 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
     //Introdução do vilão antes da batalha começar
     cout << "\n" << vilao.nomeVilao << " diz: ";
     if (vilao.nomeVilao == "Guardiao das Sombras") {
-        cout << "\"Eu fui traido, e agora voces pagarao com suas vidas!\"";
+        cout << "\"Voces destruiram tudo! Agora sentirao a verdadeira escuridao\"";
     } else if (vilao.nomeVilao == "Lider dos Trolls") {
-        cout << "\"Os reinos serao meus! Ninguem pode me deter!\"";
+        cout << "\"O mundo sera meu! Nenhum de voces sovrevivera\"";
     }
     else if (vilao.nomeVilao == "O Caos"){
-        cout << "\"Eu trarei a verdadeira liberdade! O fim de toda ordem esta proximo!\"";
+        cout << "\"A ordem eh uma mentira! Apenas o caos eh eterno!\"";
     }
     cout << endl;
 
     while (vilao.vidaVilao > 0) {
         // Exibindo as informacoes de vida do vilao
         cout << "\n============================================\n";
-        cout << "\nVILAO: " << vilao.nomeVilao << " - VIDA: " << vilao.vidaVilao << endl;
+        cout << "\n\tVILAO: " << vilao.nomeVilao << "\n" <<"\tVIDA: " << vilao.vidaVilao << endl;
         cout << "\n============================================\n";
         
         // Escolher personagem para o turno
@@ -368,11 +365,11 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
             if (personagemEscolhido.vida > 0) {
                 cout << personagemEscolhido.nome << " diz: ";
 
-                if (personagemEscolhido.nome == "Thorin") {
+                if (personagemEscolhido.nome == "Athos") {
                     cout << (rand() % 3 == 0 ? "\"Isso e tudo que voce tem? Eu sou mais forte do que isso!\"\n" :
                                                (rand() % 2 == 0 ? "\"Vai ser preciso mais do que isso para me derrubar!\"\n" :
                                                                   "\"Eu ja lutei contra piores do que voce!\"\n"));
-                } else if (personagemEscolhido.nome == "Eldra") {
+                } else if (personagemEscolhido.nome == "Trixy") {
                     cout << (rand() % 3 == 0 ? "\"Voce ousa desafiar o poder da magia?\"\n" :
                                                (rand() % 2 == 0 ? "\"Minhas defesas ainda estao intactas. Prepare-se!\"\n" :
                                                                   "\"Essa dor so fortalece minha determinacao!\"\n"));
@@ -461,14 +458,33 @@ void comecarJogo(EstadoDoJogo &estadoDoJogo) {
 
     for (int i = cenarioAtual; i < numeroDeCenarios; i++) {
         // Exibe o cenrio e seu vilao correspondente
-        cout << "\nCenario: " << cenarios[i].nome << " - Descricao: " << cenarios[i].descricao << " - Dificuldade: " << cenarios[i].dificuldade << endl;
+        cout << "\n\tCENARIO: " << cenarios[i].nome << "\n" << "\tDESCRICAO: " << cenarios[i].descricao << "\n" << "\tDIFICULDADE: " << cenarios[i].dificuldade << endl;
 
         // Descrição da história e motivação do vilão
         if (i == 0) {
-            cout << "\nUma presenca sombria... " << viloes[i].nomeVilao << " aparece! Ele, que um dia foi o protetor da Floresta das Sombras, agora busca vinganca, acreditando que a paz e uma ilusao.\n";
+            cout << "\n========================================================================================================================\n";
+            cout << "A Floresta Sombria eh envolta de misterio. Possui arvores tao densas que a luz nunca penetra completamente. Na antiguidade, fora uma floresta "
+            "exuberante, governada por elfos e criaturas de luz. Cego pelo poder,o Rei Elfo usou um fragmento de poder para formar um exercito e conquistar novos "
+            "reinos. No entanto, o poder contido no fragmento era maior do que o imaginado e ao tentar conter o caos, o protetor da floresta acaba sendo transformado "
+            "no Guardiao das Sombras. Agora, cabe aos herois a missao de derrotar o mal e trazer de volta a luz a Floresta das Sombras." << endl;
+            cout << "\nUma presenca sombria... " << viloes[i].nomeVilao << " aparece! Ele, que um dia foi o protetor da Floresta das Sombras, agora busca vinganca, acreditando que a paz eh uma ilusao.\n";
         } else if (i == 1) {
+            cout << "\n========================================================================================================================\n";
+            cout<< "Apos a derrota do Guardiao das Sombras, os viajantes seguem em busca dos pedacos restantes do Fragmento de Poder."
+            " Seguindo as pistas, eles vao parar nas Montanhas dos Ventos Gelados. Conhecida pelos seus picos nevados, cavernas "
+            "profundas e inexploradas e seus ventos cortantes, as montanhas um dia foram habitadas por mineradores que, apenas do "
+            "ambiente inospito, eram responsaveis pela extracao dos metais preciosos que abasteciam o reino. No entanto,"
+            "apos a ruptura da ordem, o frio se intensificou e os trolls, atraidos pelo ouro e pelas pedras preciosas tomaram "
+            "conta do lugar. Comandados pelo Lider dos Trolls, a legiao instaura o caos e o medo nas montanhas, fazendo com que "
+            "os seus antigos habitantes busquem refugio nas cavernas. Assim, e dever dos herois derrotar a ameaca e trazer a paz"<< endl;
             cout << "\nO chao treme enquanto o " << viloes[i].nomeVilao << " se aproxima. Ambicioso e brutal, ele deseja tornar-se o senhor dos reinos, subjugando todas as criaturas sob seu poder.\n";
         } else if (i == 2) {
+            cout << "\n========================================================================================================================\n";
+            cout<<"Dois reinos ja podem celebrar a sua liberdade. No entanto, ainda resta o maior dos viloes, O Caos. A personificacao da destruicao e da desordem"
+            "que busca destruir o mundo, O Caos surgiu no momento em que os reinos, fomentados pela busca por poder, fragmentaram a Chama Primordial. Alimentado "
+            "pela corrupcao e pelo conflitos dos lideres que deveriam garantir a ordem e a felicidade do seu povo, O Caos nao acredita que a ordem possa ser "
+            "restaurada sem que o mundo seja completamente destruido. Ao adentrar no Templo do Caos, um labirinto testa as habilidades dos herois que, ao chegar no "
+            "coracao do Templo, encontram um aglomerado de escuridao sem forma definida. O vilao ja os aguardava para o embate final."<< endl;
             cout << "\nUm silencio mortal toma conta do templo... " << viloes[i].nomeVilao << " emerge das trevas, determinado a destruir toda a ordem e lancar o mundo em caos eterno.\n";
         }
 
@@ -490,9 +506,11 @@ int main() {
 
     cout << "===============================================================================================\n";
     cout << "\n";
-    cout << "Cinco reinos magicos vivem em harmonia, protegidos pelos guardioes. Mas uma ameaca, o mal conhecido como 'O Caos', despertou e seus seguidores espalham a escuridao pelos reinos. "
-            "O 'Guardiao das Sombras' tomou a Floresta das Sombras, e o 'Lider dos Trolls' invadiu as Montanhas dos Ventos Gelados. Para restaurar a paz, os guardioes devem derrotar esses vilaos"
-            " e, por fim, enfrentar 'O Caos', ou o equilibrio dos reinos sera perdido para sempre.\n";
+    cout << "Tres reinos magicos viveram em harmonia, protegidos pelos guardioes. No entanto, ao buscar poder e gloria, os reinos se corromperam, "
+            "trazendo atona um desequilibrio na ordem e na magia. Por conta disso, uma ameaca, o mal conhecido como 'O Caos', despertou e seus seguidores "
+            "espalham a escuridao pelos reinos. O 'Guardiao das Sombras' tomou a Floresta das Sombras, e o 'Lider dos Trolls' invadiu as "
+            "Montanhas dos Ventos Gelados. Para restaurar a paz, os guardioes devem derrotar esses vilaos e, por fim, enfrentar 'O Caos', ou "
+            "o equilibrio dos reinos sera perdido para sempre.\n";
     cout << "\n";
     cout << "===============================================================================================\n";
 
@@ -500,11 +518,11 @@ int main() {
 
     // Criação dos personagens
     estadoDoJogo.personagens = {
-    {"Thorin", "Guerreiro", 300, 25},  
-    {"Eldra", "Maga", 250, 30},        
-    {"Kara", "Ladina", 200, 35},       
+    {"Athos", "Guerreiro", 300, 25},  
+    {"Trixy", "Maga", 250, 30},        
+    {"Kara", "Assassina", 200, 35},       
     {"Finn", "Arqueiro", 150, 30},     
-    {"Lara", "Sacerdotisa", 1000, 30}
+    {"Lara", "Oraculo", 1000, 30}
     };
 
     // Criação dos cenários
@@ -516,9 +534,9 @@ int main() {
 
     // Criação dos vilões
     estadoDoJogo.viloes = {
-        {"Guardiao das Sombras", 200, 30},
-        {"Lider dos Trolls", 300, 50},
-        {"O Caos", 500, 70} // vilão final
+        {"Guardiao das Sombras", 300, 40},
+        {"Lider dos Trolls", 400, 60},
+        {"O Caos", 950, 120} // vilão final
     };
 
     estadoDoJogo.cenarioAtual = 0;
