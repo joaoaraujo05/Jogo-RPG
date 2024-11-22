@@ -176,12 +176,37 @@ bool carregarJogo(EstadoDoJogo &estadoDoJogo)
 
 void adicionarItensAoPersonagem(Personagem &personagem) {
     // Criando itens
-    Item item1 = {"Pocao de Cura", "cura", 50};
-    Item item2 = {"Espada Magica", "dano", 30};
+    Item pocao = {"Pocao de Cura", "cura", 50};
+    Item espada = {"Espada Magica", "dano", 30};
+    Item machado = {"Machado de Guerra", "dano", 40};
+    Item varinha = {"Varinha Mistica", "dano", 50};
+    Item livro = {"Livro de Feiticos", "cura", 25};
+    Item punhal = {"Punhal Envenenado", "dano", 35};
+    Item amuleto = {"Amuleto de Agilidade", "dano", 30};
+    Item arco = {"Arco Longo", "dano", 45};
+    Item capa = {"Capa da Luz", "cura", 25};
+    Item aljava = {"Aljava Infinita", "dano", 20};
 
     // Adicionando os itens ao inventário do personagem
-    personagem.inventario.push_back(item1);
-    personagem.inventario.push_back(item2);
+    if (personagem.nome == "Thorin") {
+      personagem.inventario.push_back(machado);
+      personagem.inventario.push_back(pocao);
+    } else if (personagem.nome == "Eldra") {
+        personagem.inventario.push_back(varinha);
+        personagem.inventario.push_back(livro);
+    } else if (personagem.nome == "Kara") {
+        personagem.inventario.push_back(punhal);
+        personagem.inventario.push_back(amuleto);
+    } else if (personagem.nome == "Finn") {
+        personagem.inventario.push_back(arco);
+        personagem.inventario.push_back(aljava);
+    } else if (personagem.nome == "Lara") {
+        personagem.inventario.push_back(espada);
+        personagem.inventario.push_back(capa);
+    }
+
+     /*personagem.inventario.push_back(item1);
+    personagem.inventario.push_back(item2);*/
 
 }
 
@@ -203,10 +228,10 @@ void usarItem(Personagem &p, int indiceItem) {
 
     // Saida para uso dos itens
     if (item.tipo == "cura") {
-        cout << p.nome << " usou: " << item.nome << " e ganhou " << item.valor << " de vida!" << endl;
+        cout << "\n" << p.nome << " usou: " << item.nome << " e ganhou " << item.valor << " de vida!" << endl;
         p.vida += item.valor;
     } else if (item.tipo == "dano") {
-        cout << p.nome << " usou: " << item.nome << " e ganhou " << item.valor << " de dano!" << endl;
+        cout << "\n" << p.nome << " usou: " << item.nome << " e ganhou " << item.valor << " de dano!" << endl;
         p.dano += item.valor;
     }
 
@@ -391,7 +416,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
             cin >> escolha;
 
             if (escolha == 'n' || escolha == 'N') {
-                cout << "Encerrando o jogo..." << endl;
+                cout << "\nEncerrando o jogo..." << endl;
                 jogoFinalizado = true;
             } else {
                 // Introdução após a morte do vilão
