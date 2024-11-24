@@ -40,8 +40,7 @@ struct Vilao {
     int forcaVilao;
 };
 
-struct EstadoDoJogo
-{
+struct EstadoDoJogo {
     vector<Personagem> personagens;
     vector<Cenario> cenarios;
     vector<Vilao> viloes;
@@ -50,8 +49,7 @@ struct EstadoDoJogo
 };
 
 // Função para salvar o estado do jogo
-void salvarJogo(const EstadoDoJogo &estadoDoJogo)
-{
+void salvarJogo(const EstadoDoJogo &estadoDoJogo) {
     cout << "Salvando Progresso" << endl;
 
     ofstream arquivo("estado_do_jogo.txt");
@@ -64,22 +62,29 @@ void salvarJogo(const EstadoDoJogo &estadoDoJogo)
     arquivo << "JogoFinalizado: " << (estadoDoJogo.jogoFinalizado ? "true" : "false") << endl;
 
     arquivo << "Personagens:" << endl;
-    for (const auto &personagem : estadoDoJogo.personagens) {
+    for (const auto &personagem: estadoDoJogo.personagens) {
         arquivo << personagem.nome << ","
                 << personagem.classe << ","
                 << personagem.vida << ","
-                << personagem.dano << endl;
+                << personagem.dano << ";"
+                << personagem.inventario.size();
+        for (const auto &item: personagem.inventario) {
+            arquivo << "," << item.nome << ","
+                    << item.tipo << ","
+                    << item.valor;
+        }
+        arquivo << endl;
     }
 
     arquivo << "Cenarios:" << endl;
-    for (const auto &cenario : estadoDoJogo.cenarios) {
+    for (const auto &cenario: estadoDoJogo.cenarios) {
         arquivo << cenario.nome << ","
                 << cenario.descricao << ","
                 << cenario.dificuldade << endl;
     }
 
     arquivo << "Viloes:" << endl;
-    for (const auto &vilao : estadoDoJogo.viloes) {
+    for (const auto &vilao: estadoDoJogo.viloes) {
         arquivo << vilao.nomeVilao << ","
                 << vilao.vidaVilao << ","
                 << vilao.forcaVilao << endl;
@@ -90,8 +95,7 @@ void salvarJogo(const EstadoDoJogo &estadoDoJogo)
 }
 
 // Função para carregar o estado do jogo
-bool carregarJogo(EstadoDoJogo &estadoDoJogo)
-{
+bool carregarJogo(EstadoDoJogo &estadoDoJogo) {
     cout << "Carregando Progresso" << endl;
 
     ifstream arquivo("estado_do_jogo.txt");
@@ -106,15 +110,13 @@ bool carregarJogo(EstadoDoJogo &estadoDoJogo)
 
     string linha;
 
-    // Lê CenarioAtual e JogoFinalizado
     getline(arquivo, linha);
     estadoDoJogo.cenarioAtual = stoi(linha.substr(linha.find(":") + 1));
 
     getline(arquivo, linha);
     estadoDoJogo.jogoFinalizado = (linha.substr(linha.find(":") + 1) == "true");
 
-    // Lê Personagens
-    getline(arquivo, linha); // "Personagens:"
+    getline(arquivo, linha);
     while (getline(arquivo, linha) && !linha.empty() && linha != "Cenarios:") {
         Personagem p;
         size_t pos = 0;
@@ -130,12 +132,39 @@ bool carregarJogo(EstadoDoJogo &estadoDoJogo)
         p.vida = stoi(linha.substr(0, pos));
         linha = linha.substr(pos + 1);
 
+        pos = linha.find(";");
         p.dano = stoi(linha);
+        linha = linha.substr(pos + 1);
+
+        pos = linha.find(",");
+        int numItens = pos == string::npos ? stoi(linha) : stoi(linha.substr(0, pos));
+        if (pos != string::npos) {
+            linha = linha.substr(pos + 1);
+
+            for (int i = 0; i < numItens; i++) {
+                Item item;
+
+                pos = linha.find(",");
+                item.nome = linha.substr(0, pos);
+                linha = linha.substr(pos + 1);
+
+                pos = linha.find(",");
+                item.tipo = linha.substr(0, pos);
+                linha = linha.substr(pos + 1);
+
+                pos = (i == numItens - 1) ? string::npos : linha.find(",");
+                item.valor = stoi(linha.substr(0, pos));
+                if (pos != string::npos) {
+                    linha = linha.substr(pos + 1);
+                }
+
+                p.inventario.push_back(item);
+            }
+        }
 
         estadoDoJogo.personagens.push_back(p);
     }
 
-    // Lê Cenarios
     while (getline(arquivo, linha) && !linha.empty() && linha != "Viloes:") {
         Cenario c;
         size_t pos = 0;
@@ -152,7 +181,6 @@ bool carregarJogo(EstadoDoJogo &estadoDoJogo)
         estadoDoJogo.cenarios.push_back(c);
     }
 
-    // Lê Viloes
     while (getline(arquivo, linha) && !linha.empty()) {
         Vilao v;
         size_t pos = 0;
@@ -189,8 +217,8 @@ void adicionarItensAoPersonagem(Personagem &personagem) {
 
     // Adicionando os itens ao inventário do personagem
     if (personagem.nome == "Athos") {
-      personagem.inventario.push_back(machado);
-      personagem.inventario.push_back(pocao);
+        personagem.inventario.push_back(machado);
+        personagem.inventario.push_back(pocao);
     } else if (personagem.nome == "Trixy") {
         personagem.inventario.push_back(varinha);
         personagem.inventario.push_back(livro);
@@ -204,7 +232,6 @@ void adicionarItensAoPersonagem(Personagem &personagem) {
         personagem.inventario.push_back(espada);
         personagem.inventario.push_back(capa);
     }
-
 }
 
 // Função para coleta de item
@@ -221,7 +248,7 @@ void usarItem(Personagem &p, int indiceItem) {
         return;
     }
 
-    Item& item = p.inventario[indiceItem];
+    Item &item = p.inventario[indiceItem];
 
     // Saida para uso dos itens
     if (item.tipo == "cura") {
@@ -245,7 +272,8 @@ void mostrarInventario(const Personagem &p) {
 
     cout << "\nInventario do " << p.nome << ":\n";
     for (int i = 0; i < p.inventario.size(); i++) {
-        cout << i + 1 << ". " << p.inventario[i].nome << " - Tipo: " << p.inventario[i].tipo << " - Valor: " << p.inventario[i].valor << endl;
+        cout << i + 1 << ". " << p.inventario[i].nome << " - Tipo: " << p.inventario[i].tipo << " - Valor: " << p.
+                inventario[i].valor << endl;
     }
 }
 
@@ -276,7 +304,7 @@ void usarItemDuranteBatalha(Personagem &p) {
 }
 
 // Funcao para verificar se todos os personagens foram derrotados
-bool todosPersonagensDerrotados(const vector<Personagem>& personagens) {
+bool todosPersonagensDerrotados(const vector<Personagem> &personagens) {
     for (int i = 0; i < 5; i++) {
         if (personagens[i].vida > 0) {
             return false;
@@ -286,7 +314,7 @@ bool todosPersonagensDerrotados(const vector<Personagem>& personagens) {
 }
 
 // Funcao para batalha, recendo passagem por referencia
-void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizado, EstadoDoJogo& estadoDoJogo) {
+void batalhar(Vilao &vilao, vector<Personagem> &personagens, bool &jogoFinalizado, EstadoDoJogo &estadoDoJogo) {
     int turno = 0;
     int numeroDePersonagens = 5;
     int escolhaPersonagem;
@@ -297,8 +325,7 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
         cout << "\"Voces destruiram tudo! Agora sentirao a verdadeira escuridao\"";
     } else if (vilao.nomeVilao == "Lider dos Trolls") {
         cout << "\"O mundo sera meu! Nenhum de voces sovrevivera\"";
-    }
-    else if (vilao.nomeVilao == "O Caos"){
+    } else if (vilao.nomeVilao == "O Caos") {
         cout << "\"A ordem eh uma mentira! Apenas o caos eh eterno!\"";
     }
     cout << endl;
@@ -306,28 +333,30 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
     while (vilao.vidaVilao > 0) {
         // Exibindo as informacoes de vida do vilao
         cout << "\n============================================\n";
-        cout << "\n\tVILAO: " << vilao.nomeVilao << "\n" <<"\tVIDA: " << vilao.vidaVilao << endl;
+        cout << "\n\tVILAO: " << vilao.nomeVilao << "\n" << "\tVIDA: " << vilao.vidaVilao << endl;
         cout << "\n============================================\n";
-        
+
         // Escolher personagem para o turno
         cout << "\nEscolha o personagem para atacar: \n";
         for (int i = 0; i < numeroDePersonagens; i++) {
             if (personagens[i].vida > 0) {
-                cout << i + 1 << ". " << personagens[i].nome << " (" << personagens[i].classe << ") - Vida: " << personagens[i].vida << " - Dano: " << personagens[i].dano << endl;
+                cout << i + 1 << ". " << personagens[i].nome << " (" << personagens[i].classe << ") - Vida: " <<
+                        personagens[i].vida << " - Dano: " << personagens[i].dano << endl;
             }
         }
         cout << "\nEscolha seu personagem: ";
         cin >> escolhaPersonagem;
 
         // Validacao da escolha
-        if (escolhaPersonagem < 1 || escolhaPersonagem > numeroDePersonagens || personagens[escolhaPersonagem - 1].vida <= 0) {
+        if (escolhaPersonagem < 1 || escolhaPersonagem > numeroDePersonagens || personagens[escolhaPersonagem - 1].vida
+            <= 0) {
             cout << "\nOpcao invalida ou personagem derrotado. Tente novamente.\n";
             continue;
         }
 
         // Escolhendo o indice correto correspondente ao personagem por referencia
         // Exemplo: Kara é a personagem 3, mas no vetor é o indice [2]
-        Personagem& personagemEscolhido = personagens[escolhaPersonagem - 1];
+        Personagem &personagemEscolhido = personagens[escolhaPersonagem - 1];
 
         cout << "\nUsar um item durante o turno? (s/n): ";
         char usarItemEscolha;
@@ -335,11 +364,12 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
 
         // Validando entrada
         if (usarItemEscolha == 's' || usarItemEscolha == 'S') {
-            usarItemDuranteBatalha(personagemEscolhido);  // Permite ao jogador usar um item
+            usarItemDuranteBatalha(personagemEscolhido); // Permite ao jogador usar um item
         }
 
         // Ataque do personagem ao vilao
-        cout << "\n" << personagemEscolhido.nome << " ataca " << vilao.nomeVilao << " causando " << personagemEscolhido.dano << " de dano!\n";
+        cout << "\n" << personagemEscolhido.nome << " ataca " << vilao.nomeVilao << " causando " << personagemEscolhido.
+                dano << " de dano!\n";
         vilao.vidaVilao -= personagemEscolhido.dano;
 
         // Se o vilao ainda estiver vivo, ele contra-ataca
@@ -350,14 +380,17 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
             // Frase entre ataques dos vilões
             cout << "\n" << vilao.nomeVilao << " diz: ";
             if (vilao.nomeVilao == "Guardiao das Sombras") {
-                cout << (rand() % 2 == 0 ? "\"Voces vao se perder para sempre, assim como todos os que me desafiaram!\"\n" :
-                                           "\"Sombras eternas irao devorar todos voces!\"\n");
+                cout << (rand() % 2 == 0
+                             ? "\"Voces vao se perder para sempre, assim como todos os que me desafiaram!\"\n"
+                             : "\"Sombras eternas irao devorar todos voces!\"\n");
             } else if (vilao.nomeVilao == "Lider dos Trolls") {
-                cout << (rand() % 2 == 0 ? "\"Esse ataque foi patetico! Eu sou indestrutivel!\"\n" :
-                                           "\"Eu pisotearei todos que se atreverem a me enfrentar!\"\n");
+                cout << (rand() % 2 == 0
+                             ? "\"Esse ataque foi patetico! Eu sou indestrutivel!\"\n"
+                             : "\"Eu pisotearei todos que se atreverem a me enfrentar!\"\n");
             } else if (vilao.nomeVilao == "O Caos") {
-                cout << (rand() % 2 == 0 ? "\"Nada pode conter o Caos! Em breve, tudo sera reduzido ao nada!\"\n" :
-                                           "\"A ordem sera destruida, e o caos reinara para sempre!\"\n");
+                cout << (rand() % 2 == 0
+                             ? "\"Nada pode conter o Caos! Em breve, tudo sera reduzido ao nada!\"\n"
+                             : "\"A ordem sera destruida, e o caos reinara para sempre!\"\n");
             }
             cout << endl;
 
@@ -366,25 +399,35 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
                 cout << personagemEscolhido.nome << " diz: ";
 
                 if (personagemEscolhido.nome == "Athos") {
-                    cout << (rand() % 3 == 0 ? "\"Isso e tudo que voce tem? Eu sou mais forte do que isso!\"\n" :
-                                               (rand() % 2 == 0 ? "\"Vai ser preciso mais do que isso para me derrubar!\"\n" :
-                                                                  "\"Eu ja lutei contra piores do que voce!\"\n"));
+                    cout << (rand() % 3 == 0
+                                 ? "\"Isso e tudo que voce tem? Eu sou mais forte do que isso!\"\n"
+                                 : (rand() % 2 == 0
+                                        ? "\"Vai ser preciso mais do que isso para me derrubar!\"\n"
+                                        : "\"Eu ja lutei contra piores do que voce!\"\n"));
                 } else if (personagemEscolhido.nome == "Trixy") {
-                    cout << (rand() % 3 == 0 ? "\"Voce ousa desafiar o poder da magia?\"\n" :
-                                               (rand() % 2 == 0 ? "\"Minhas defesas ainda estao intactas. Prepare-se!\"\n" :
-                                                                  "\"Essa dor so fortalece minha determinacao!\"\n"));
+                    cout << (rand() % 3 == 0
+                                 ? "\"Voce ousa desafiar o poder da magia?\"\n"
+                                 : (rand() % 2 == 0
+                                        ? "\"Minhas defesas ainda estao intactas. Prepare-se!\"\n"
+                                        : "\"Essa dor so fortalece minha determinacao!\"\n"));
                 } else if (personagemEscolhido.nome == "Kara") {
-                    cout << (rand() % 3 == 0 ? "\"Ah, voce vai pagar caro por esse ataque!\"\n" :
-                                               (rand() % 2 == 0 ? "\"Mal me acertou! Vai ter que ser mais rapido!\"\n" :
-                                                                  "\"Voce nao tem chance contra minhas habilidades!\"\n"));
+                    cout << (rand() % 3 == 0
+                                 ? "\"Ah, voce vai pagar caro por esse ataque!\"\n"
+                                 : (rand() % 2 == 0
+                                        ? "\"Mal me acertou! Vai ter que ser mais rapido!\"\n"
+                                        : "\"Voce nao tem chance contra minhas habilidades!\"\n"));
                 } else if (personagemEscolhido.nome == "Finn") {
-                    cout << (rand() % 3 == 0 ? "\"Nao pense que vou perder o foco tao facil!\"\n" :
-                                               (rand() % 2 == 0 ? "\"Minha precisao continua impecavel!\"\n" :
-                                                                  "\"Seus ataques sao fortes, mas eu sou agil!\"\n"));
+                    cout << (rand() % 3 == 0
+                                 ? "\"Nao pense que vou perder o foco tao facil!\"\n"
+                                 : (rand() % 2 == 0
+                                        ? "\"Minha precisao continua impecavel!\"\n"
+                                        : "\"Seus ataques sao fortes, mas eu sou agil!\"\n"));
                 } else if (personagemEscolhido.nome == "Lara") {
-                    cout << (rand() % 3 == 0 ? "\"A luz ainda me guia... eu continuarei lutando!\"\n" :
-                                               (rand() % 2 == 0 ? "\"A forca dos reinos flui dentro de mim!\"\n" :
-                                                                  "\"A escuridao nunca triunfara sobre a luz!\"\n"));
+                    cout << (rand() % 3 == 0
+                                 ? "\"A luz ainda me guia... eu continuarei lutando!\"\n"
+                                 : (rand() % 2 == 0
+                                        ? "\"A forca dos reinos flui dentro de mim!\"\n"
+                                        : "\"A escuridao nunca triunfara sobre a luz!\"\n"));
                 }
             }
 
@@ -395,8 +438,8 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
         }
 
         // Verifica se o vilao foi derrotado
-        if (vilao.vidaVilao <= 0) {  
-            if (vilao.vidaVilao <=0 && vilao.nomeVilao == "O Caos") {
+        if (vilao.vidaVilao <= 0) {
+            if (vilao.vidaVilao <= 0 && vilao.nomeVilao == "O Caos") {
                 cout << "\n" << vilao.nomeVilao << " FOI DERROTADO!\n";
                 cout << "\n*************************************************";
                 cout << "\n********* PARABENS!! VOCE GANHOU O JOGO *********\n";
@@ -417,11 +460,14 @@ void batalhar(Vilao& vilao, vector<Personagem>& personagens, bool& jogoFinalizad
                 jogoFinalizado = true;
             } else {
                 // Introdução após a morte do vilão
-                cout << "\nApos a morte de " << vilao.nomeVilao << ", os herois seguem seu destino rumo a novos desafios.\n";
+                cout << "\nApos a morte de " << vilao.nomeVilao <<
+                        ", os herois seguem seu destino rumo a novos desafios.\n";
                 if (vilao.nomeVilao == "Guardiao das Sombras") {
-                    cout << "Eles agora sabem que as sombras sao mais profundas e que o mal ainda persiste nas terras sombrias...\n";
+                    cout <<
+                            "Eles agora sabem que as sombras sao mais profundas e que o mal ainda persiste nas terras sombrias...\n";
                 } else if (vilao.nomeVilao == "Lider dos Trolls") {
-                    cout << "Com a derrota do lider, os reinos se preparam para a paz, mas os trolls ainda vagam pelas florestas...\n";
+                    cout <<
+                            "Com a derrota do lider, os reinos se preparam para a paz, mas os trolls ainda vagam pelas florestas...\n";
                 } else if (vilao.nomeVilao == "O Caos") {
                     cout << "Embora o caos tenha sido derrotado, a ordem do mundo nunca mais sera a mesma...\n";
                 }
@@ -450,42 +496,51 @@ void comecarJogo(EstadoDoJogo &estadoDoJogo) {
     int &cenarioAtual = estadoDoJogo.cenarioAtual;
     bool &jogoFinalizado = estadoDoJogo.jogoFinalizado;
 
-    for (Personagem &personagem : estadoDoJogo.personagens) {
-        adicionarItensAoPersonagem(personagem);  // Adiciona itens ao personagem
-    }
-
     int numeroDeCenarios = 3;
 
     for (int i = cenarioAtual; i < numeroDeCenarios; i++) {
         // Exibe o cenrio e seu vilao correspondente
-        cout << "\n\tCENARIO: " << cenarios[i].nome << "\n" << "\tDESCRICAO: " << cenarios[i].descricao << "\n" << "\tDIFICULDADE: " << cenarios[i].dificuldade << endl;
+        cout << "\n\tCENARIO: " << cenarios[i].nome << "\n" << "\tDESCRICAO: " << cenarios[i].descricao << "\n" <<
+                "\tDIFICULDADE: " << cenarios[i].dificuldade << endl;
 
         // Descrição da história e motivação do vilão
         if (i == 0) {
-            cout << "\n========================================================================================================================\n";
-            cout << "A Floresta Sombria eh envolta de misterio. Possui arvores tao densas que a luz nunca penetra completamente. Na antiguidade, fora uma floresta "
-            "exuberante, governada por elfos e criaturas de luz. Cego pelo poder,o Rei Elfo usou um fragmento de poder para formar um exercito e conquistar novos "
-            "reinos. No entanto, o poder contido no fragmento era maior do que o imaginado e ao tentar conter o caos, o protetor da floresta acaba sendo transformado "
-            "no Guardiao das Sombras. Agora, cabe aos herois a missao de derrotar o mal e trazer de volta a luz a Floresta das Sombras." << endl;
-            cout << "\nUma presenca sombria... " << viloes[i].nomeVilao << " aparece! Ele, que um dia foi o protetor da Floresta das Sombras, agora busca vinganca, acreditando que a paz eh uma ilusao.\n";
+            cout <<
+                    "\n========================================================================================================================\n";
+            cout <<
+                    "A Floresta Sombria eh envolta de misterio. Possui arvores tao densas que a luz nunca penetra completamente. Na antiguidade, fora uma floresta "
+                    "exuberante, governada por elfos e criaturas de luz. Cego pelo poder,o Rei Elfo usou um fragmento de poder para formar um exercito e conquistar novos "
+                    "reinos. No entanto, o poder contido no fragmento era maior do que o imaginado e ao tentar conter o caos, o protetor da floresta acaba sendo transformado "
+                    "no Guardiao das Sombras. Agora, cabe aos herois a missao de derrotar o mal e trazer de volta a luz a Floresta das Sombras."
+                    << endl;
+            cout << "\nUma presenca sombria... " << viloes[i].nomeVilao <<
+                    " aparece! Ele, que um dia foi o protetor da Floresta das Sombras, agora busca vinganca, acreditando que a paz eh uma ilusao.\n";
         } else if (i == 1) {
-            cout << "\n========================================================================================================================\n";
-            cout<< "Apos a derrota do Guardiao das Sombras, os viajantes seguem em busca dos pedacos restantes do Fragmento de Poder."
-            " Seguindo as pistas, eles vao parar nas Montanhas dos Ventos Gelados. Conhecida pelos seus picos nevados, cavernas "
-            "profundas e inexploradas e seus ventos cortantes, as montanhas um dia foram habitadas por mineradores que, apenas do "
-            "ambiente inospito, eram responsaveis pela extracao dos metais preciosos que abasteciam o reino. No entanto,"
-            "apos a ruptura da ordem, o frio se intensificou e os trolls, atraidos pelo ouro e pelas pedras preciosas tomaram "
-            "conta do lugar. Comandados pelo Lider dos Trolls, a legiao instaura o caos e o medo nas montanhas, fazendo com que "
-            "os seus antigos habitantes busquem refugio nas cavernas. Assim, e dever dos herois derrotar a ameaca e trazer a paz"<< endl;
-            cout << "\nO chao treme enquanto o " << viloes[i].nomeVilao << " se aproxima. Ambicioso e brutal, ele deseja tornar-se o senhor dos reinos, subjugando todas as criaturas sob seu poder.\n";
+            cout <<
+                    "\n========================================================================================================================\n";
+            cout <<
+                    "Apos a derrota do Guardiao das Sombras, os viajantes seguem em busca dos pedacos restantes do Fragmento de Poder."
+                    " Seguindo as pistas, eles vao parar nas Montanhas dos Ventos Gelados. Conhecida pelos seus picos nevados, cavernas "
+                    "profundas e inexploradas e seus ventos cortantes, as montanhas um dia foram habitadas por mineradores que, apenas do "
+                    "ambiente inospito, eram responsaveis pela extracao dos metais preciosos que abasteciam o reino. No entanto,"
+                    "apos a ruptura da ordem, o frio se intensificou e os trolls, atraidos pelo ouro e pelas pedras preciosas tomaram "
+                    "conta do lugar. Comandados pelo Lider dos Trolls, a legiao instaura o caos e o medo nas montanhas, fazendo com que "
+                    "os seus antigos habitantes busquem refugio nas cavernas. Assim, e dever dos herois derrotar a ameaca e trazer a paz"
+                    << endl;
+            cout << "\nO chao treme enquanto o " << viloes[i].nomeVilao <<
+                    " se aproxima. Ambicioso e brutal, ele deseja tornar-se o senhor dos reinos, subjugando todas as criaturas sob seu poder.\n";
         } else if (i == 2) {
-            cout << "\n========================================================================================================================\n";
-            cout<<"Dois reinos ja podem celebrar a sua liberdade. No entanto, ainda resta o maior dos viloes, O Caos. A personificacao da destruicao e da desordem"
-            "que busca destruir o mundo, O Caos surgiu no momento em que os reinos, fomentados pela busca por poder, fragmentaram a Chama Primordial. Alimentado "
-            "pela corrupcao e pelo conflitos dos lideres que deveriam garantir a ordem e a felicidade do seu povo, O Caos nao acredita que a ordem possa ser "
-            "restaurada sem que o mundo seja completamente destruido. Ao adentrar no Templo do Caos, um labirinto testa as habilidades dos herois que, ao chegar no "
-            "coracao do Templo, encontram um aglomerado de escuridao sem forma definida. O vilao ja os aguardava para o embate final."<< endl;
-            cout << "\nUm silencio mortal toma conta do templo... " << viloes[i].nomeVilao << " emerge das trevas, determinado a destruir toda a ordem e lancar o mundo em caos eterno.\n";
+            cout <<
+                    "\n========================================================================================================================\n";
+            cout <<
+                    "Dois reinos ja podem celebrar a sua liberdade. No entanto, ainda resta o maior dos viloes, O Caos. A personificacao da destruicao e da desordem"
+                    "que busca destruir o mundo, O Caos surgiu no momento em que os reinos, fomentados pela busca por poder, fragmentaram a Chama Primordial. Alimentado "
+                    "pela corrupcao e pelo conflitos dos lideres que deveriam garantir a ordem e a felicidade do seu povo, O Caos nao acredita que a ordem possa ser "
+                    "restaurada sem que o mundo seja completamente destruido. Ao adentrar no Templo do Caos, um labirinto testa as habilidades dos herois que, ao chegar no "
+                    "coracao do Templo, encontram um aglomerado de escuridao sem forma definida. O vilao ja os aguardava para o embate final."
+                    << endl;
+            cout << "\nUm silencio mortal toma conta do templo... " << viloes[i].nomeVilao <<
+                    " emerge das trevas, determinado a destruir toda a ordem e lancar o mundo em caos eterno.\n";
         }
 
         // Inicia a batalha contra o vilao do cenario atual
@@ -506,7 +561,8 @@ int main() {
 
     cout << "===============================================================================================\n";
     cout << "\n";
-    cout << "Tres reinos magicos viveram em harmonia, protegidos pelos guardioes. No entanto, ao buscar poder e gloria, os reinos se corromperam, "
+    cout <<
+            "Tres reinos magicos viveram em harmonia, protegidos pelos guardioes. No entanto, ao buscar poder e gloria, os reinos se corromperam, "
             "trazendo atona um desequilibrio na ordem e na magia. Por conta disso, uma ameaca, o mal conhecido como 'O Caos', despertou e seus seguidores "
             "espalham a escuridao pelos reinos. O 'Guardiao das Sombras' tomou a Floresta das Sombras, e o 'Lider dos Trolls' invadiu as "
             "Montanhas dos Ventos Gelados. Para restaurar a paz, os guardioes devem derrotar esses vilaos e, por fim, enfrentar 'O Caos', ou "
@@ -518,12 +574,17 @@ int main() {
 
     // Criação dos personagens
     estadoDoJogo.personagens = {
-    {"Athos", "Guerreiro", 300, 25},  
-    {"Trixy", "Maga", 250, 30},        
-    {"Kara", "Assassina", 200, 35},       
-    {"Finn", "Arqueiro", 150, 30},     
-    {"Lara", "Oraculo", 1000, 30}
+        {"Athos", "Guerreiro", 300, 25},
+        {"Trixy", "Maga", 250, 30},
+        {"Kara", "Assassina", 200, 35},
+        {"Finn", "Arqueiro", 150, 30},
+        {"Lara", "Oraculo", 1000, 30}
     };
+
+    // Adiciona itens ao inventário de cada personagem
+    for (Personagem &personagem: estadoDoJogo.personagens) {
+        adicionarItensAoPersonagem(personagem);
+    }
 
     // Criação dos cenários
     estadoDoJogo.cenarios = {
@@ -557,27 +618,25 @@ int main() {
         cout << "Digite a opcao: ";
         cin >> escolha;
 
-        switch (escolha)
-        {
-        case 1:
-            comecarJogo(estadoDoJogo);
-            break;
+        switch (escolha) {
+            case 1:
+                comecarJogo(estadoDoJogo);
+                break;
 
-        case 2:
-            if (carregarJogo(estadoDoJogo)) {
-                comecarJogo(estadoDoJogo);  // Chama a função para cada personagem
-            }
-            break;
+            case 2:
+                if (carregarJogo(estadoDoJogo)) {
+                    comecarJogo(estadoDoJogo);
+                }
+                break;
 
-        case 3:
-            cout << "Saindo...\n";
-            break;
+            case 3:
+                cout << "Saindo...\n";
+                break;
 
-        default:
-            cout << "\nOPCAO INVALIDA!! DIGITE A OPCAO CORRETA.\n";
-            break;
+            default:
+                cout << "\nOPCAO INVALIDA!! DIGITE A OPCAO CORRETA.\n";
+                break;
         }
-
     } while (escolha != 3 && !estadoDoJogo.jogoFinalizado);
 
     return 0;
