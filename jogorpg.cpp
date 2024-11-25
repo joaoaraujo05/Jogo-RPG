@@ -608,7 +608,7 @@ int main() {
     // Menu inicial
     do {
         cout << "\n=====================================\n";
-        cout << "|        AVENTURA DOS 5 REINOS       |\n";
+        cout << "|        AVENTURA DOS 3 REINOS       |\n";
         cout << "=====================================\n";
         cout << "|        Escolha uma opcao:          |\n";
         cout << "|        1. Iniciar Jogo             |\n";
